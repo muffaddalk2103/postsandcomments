@@ -13,7 +13,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loyaltyone.postsandcomments.posts.controller.PostController;
+import com.loyaltyone.postsandcomments.posts.model.PostRequest;
 
 /**
  * @author muffa
@@ -26,13 +28,18 @@ public class PostTestControllerIntegrationTest {
 	@Autowired
 	private MockMvc mvc;
 
+	@Autowired 
+	private ObjectMapper mapper;
+
 	@Test
 	public void testPostText()
 			throws Exception {
-		mvc.perform(MockMvcRequestBuilders.post("/post").content("test")
-				.contentType(MediaType.TEXT_PLAIN).accept(MediaType.TEXT_PLAIN))
-		.andExpect(MockMvcResultMatchers.status().isOk())
-		.andExpect(MockMvcResultMatchers.content().string("test"));
+		PostRequest postRequest = new PostRequest();
+		String data = mapper.writeValueAsString(postRequest);
+		mvc.perform(MockMvcRequestBuilders.post("/post").content(data)
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(MockMvcResultMatchers.content().string(data));
 
 	}
 }
