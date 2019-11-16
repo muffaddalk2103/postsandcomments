@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.loyaltyone.postsandcomments.posts.model;
 
@@ -8,39 +8,45 @@ package com.loyaltyone.postsandcomments.posts.model;
  *
  */
 public class WeatherData {
-	private String latitude;
-	private String longitude;
+	private float latitude;
+	private float longitude;
 	private int temperature;
+
 	/**
 	 * @return the latitude
 	 */
-	public String getLatitude() {
+	public float getLatitude() {
 		return latitude;
 	}
-	/**
-	 * @param latitude the latitude to set
-	 */
-	public void setLatitude(String latitude) {
-		this.latitude = latitude;
-	}
+
 	/**
 	 * @return the longitude
 	 */
-	public String getLongitude() {
+	public float getLongitude() {
 		return longitude;
 	}
-	/**
-	 * @param longitude the longitude to set
-	 */
-	public void setLongitude(String longitude) {
-		this.longitude = longitude;
-	}
+
 	/**
 	 * @return the temperature
 	 */
 	public int getTemperature() {
 		return temperature;
 	}
+
+	/**
+	 * @param latitude the latitude to set
+	 */
+	public void setLatitude(float latitude) {
+		this.latitude = latitude;
+	}
+
+	/**
+	 * @param longitude the longitude to set
+	 */
+	public void setLongitude(float longitude) {
+		this.longitude = longitude;
+	}
+
 	/**
 	 * @param temperature the temperature to set
 	 */

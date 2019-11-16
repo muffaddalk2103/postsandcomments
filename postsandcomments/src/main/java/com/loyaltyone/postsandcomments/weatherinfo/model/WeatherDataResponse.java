@@ -15,6 +15,8 @@ public class WeatherDataResponse {
 	private LocationData locationData;
 	@JsonProperty("main")
 	private WeatherData weatherData;
+	@JsonProperty("name")
+	private String city;
 	/**
 	 * @return the locationData
 	 */
@@ -38,5 +40,17 @@ public class WeatherDataResponse {
 	 */
 	public void setWeatherData(WeatherData weatherData) {
 		this.weatherData = weatherData;
+	}
+	/**
+	 * @return the city
+	 */
+	public String getCity() {
+		return city;
+	}
+	/**
+	 * @param city the city to set
+	 */
+	public void setCity(String city) {
+		this.city = city;
 	}
 }
