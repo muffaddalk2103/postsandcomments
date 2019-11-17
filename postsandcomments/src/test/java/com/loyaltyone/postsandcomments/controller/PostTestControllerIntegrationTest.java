@@ -14,8 +14,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.loyaltyone.postsandcomments.posts.controller.PostController;
-import com.loyaltyone.postsandcomments.posts.model.PostRequest;
+import com.loyaltyone.postsandcomments.controller.PostController;
+import com.loyaltyone.postsandcomments.model.PostRequest;
 
 /**
  * @author muffa

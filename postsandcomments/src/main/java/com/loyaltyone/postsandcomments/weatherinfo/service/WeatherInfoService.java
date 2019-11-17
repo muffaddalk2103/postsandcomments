@@ -59,10 +59,9 @@ public class WeatherInfoService {
 			// Canada
 			WeatherDataResponse weatherDataResponse = restTemplate.getForObject(uriComponents.toUriString(),
 					WeatherDataResponse.class);
-			if (weatherDataResponse != null) {
-				weatherMap.putIfAbsent(cityName, weatherDataResponse);
-			}
+			weatherMap.putIfAbsent(cityName, weatherDataResponse);
 		} catch (Exception ex) {
+			weatherMap.putIfAbsent(cityName, null);
 			ex.printStackTrace();
 		}
 	}

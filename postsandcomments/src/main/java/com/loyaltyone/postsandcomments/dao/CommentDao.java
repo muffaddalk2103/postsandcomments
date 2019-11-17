@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.loyaltyone.postsandcomments.dao;
 
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.loyaltyone.postsandcomments.dao.entity.Comment;
 import com.loyaltyone.postsandcomments.dao.repository.CommentRepository;
-import com.loyaltyone.postsandcomments.posts.model.CommentRequest;
+import com.loyaltyone.postsandcomments.model.CommentRequest;
 
 /**
  * @author muffa
@@ -18,7 +18,7 @@ import com.loyaltyone.postsandcomments.posts.model.CommentRequest;
 public class CommentDao {
 
 	private CommentRepository commentRepository;
-	
+
 	/**
 	 * @param postRepository
 	 */
@@ -28,7 +28,7 @@ public class CommentDao {
 		this.commentRepository = commentRepository;
 	}
 
-	public Comment savePost(CommentRequest commentRequest) {
+	public Comment saveComment(CommentRequest commentRequest) {
 		Comment comment = new Comment();
 		comment.setComment(commentRequest.getComment());
 		comment.setPostId(commentRequest.getPostId());

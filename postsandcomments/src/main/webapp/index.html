@@ -1,1 +1,67 @@
-hell world
+<!doctype html>
+<html lang="en">
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta charset="utf-8" />
+<title>Post and comments</title>
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="stylesheet"
+	href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"
+	type="text/css">
+<link href='../css/styles.css' rel='stylesheet' type='text/css'>
+</head>
+<body>
+	<div class="container">
+		<div style="text-align: center">
+			<h2>Submit a Post</h2>
+		</div>
+		<div class="row">
+			<div class="col-container">
+				<div id="div1" class="column">
+					<div class="card">
+						<form id="formpost" action="/post">
+
+							<label for="username">User Name</label> <input type="text"
+								id="username" name="userName" placeholder="User name"> <label
+								for="city">City</label> <input type="text" id="city" name="city"
+								placeholder="City"><label for="postText">Post</label>
+							<textarea id="postText" name="post" placeholder="Submit a post.."
+								style="height: 100px"></textarea>
+							<input type="submit" value="Done">
+
+						</form>
+					</div>
+				</div>
+				<div id="div2" class="column" style="display: none;">
+					<div class="card">
+						<table id="userPosts" class="display" style="width: 100%">
+							<thead>
+								<tr>
+									<th>Posts</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="card">
+				<table id="allPosts" class="display" style="width: 100%">
+					<thead>
+						<tr>
+							<th>Posts</th>
+						</tr>
+					</thead>
+				</table>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" src="../js/jquery-dateformat.min.js"></script>
+	<script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+	<script type="text/javascript"
+		src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script><script src="../js/main.js"></script>
+</body>
+</html>
