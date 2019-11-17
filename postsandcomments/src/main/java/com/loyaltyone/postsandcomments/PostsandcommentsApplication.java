@@ -33,17 +33,30 @@ public class PostsandcommentsApplication {
 	@Value("${weather.cache.time}")
 	private long timeToCache;
 
+	/**
+	 * Clears expired weather data every 10 mins by calling size() on
+	 * PassiveExpiringMap. Data is cleared every 10 mins as weather API refreshed
+	 * it's own data every 10 mins
+	 */
 	@Scheduled(cron = "${weather.cron.expression}")
 	public void clearMapAsCache() {
 		Map mapAsCache = context.getBean("weatherMap", Map.class);
 		mapAsCache.size();
 	}
 
+	/**
+	 * @return RestTemplate
+	 */
 	@Bean
 	public RestTemplate restTemplate() {
 		return new RestTemplate();
 	}
 
+	/**
+	 * Returns a synchronized version of PassiveExpiringMap
+	 * 
+	 * @return PassiveExpiringMap
+	 */
 	@Bean
 	@Qualifier("weatherMap")
 	public Map<String, String> weatherMap() {

@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.loyaltyone.postsandcomments.model;
+package com.loyaltyone.postsandcomments.model.pagination;
 
 /**
  * @author muffa

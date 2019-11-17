@@ -101,3 +101,19 @@ CREATE INDEX fk_post_id_index
     ON public.comments USING btree
     (post_id)
     TABLESPACE pg_default;
+	
+CREATE OR REPLACE VIEW public.posts_comments
+ AS
+ SELECT p.post_id,
+    p.location_city,
+    p.created_dt,
+    p.post_text,
+    p.user_name,
+    c.comment_text,
+    c.created_dt AS comment_created_date,
+    COALESCE(c.comment_id, p.post_id) AS comment_id
+   FROM posts p
+     LEFT JOIN comments c ON p.post_id = c.post_id;
+
+ALTER TABLE public.posts_comments
+    OWNER TO postgres;	

@@ -3,12 +3,13 @@
  */
 package com.loyaltyone.postsandcomments.dao;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.loyaltyone.postsandcomments.dao.entity.Comment;
 import com.loyaltyone.postsandcomments.dao.repository.CommentRepository;
-import com.loyaltyone.postsandcomments.model.CommentRequest;
 
 /**
  * @author muffa
@@ -17,10 +18,11 @@ import com.loyaltyone.postsandcomments.model.CommentRequest;
 @Service
 public class CommentDao {
 
+	private Logger logger = LoggerFactory.getLogger(CommentDao.class);
 	private CommentRepository commentRepository;
 
 	/**
-	 * @param postRepository
+	 * @param commentRepository
 	 */
 	@Autowired
 	public CommentDao(CommentRepository commentRepository) {
@@ -28,10 +30,14 @@ public class CommentDao {
 		this.commentRepository = commentRepository;
 	}
 
-	public Comment saveComment(CommentRequest commentRequest) {
-		Comment comment = new Comment();
-		comment.setComment(commentRequest.getComment());
-		comment.setPostId(commentRequest.getPostId());
+	/**
+	 * Saves comment in database
+	 * 
+	 * @param comment comment to be saed
+	 * @return saved comment
+	 */
+	public Comment saveComment(Comment comment) {
+		logger.info("Inside saveComment");
 		return commentRepository.save(comment);
 	}
 }

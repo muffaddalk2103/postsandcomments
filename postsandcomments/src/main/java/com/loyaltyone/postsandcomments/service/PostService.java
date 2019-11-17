@@ -18,12 +18,12 @@ import com.loyaltyone.postsandcomments.dao.PostDao;
 import com.loyaltyone.postsandcomments.dao.entity.Post;
 import com.loyaltyone.postsandcomments.dao.entity.PostCommentView;
 import com.loyaltyone.postsandcomments.model.CommentResponse;
-import com.loyaltyone.postsandcomments.model.PagingRequest;
-import com.loyaltyone.postsandcomments.model.PagingResponse;
 import com.loyaltyone.postsandcomments.model.PostRequest;
 import com.loyaltyone.postsandcomments.model.PostResponse;
 import com.loyaltyone.postsandcomments.model.Response;
 import com.loyaltyone.postsandcomments.model.WeatherData;
+import com.loyaltyone.postsandcomments.model.pagination.PagingRequest;
+import com.loyaltyone.postsandcomments.model.pagination.PagingResponse;
 import com.loyaltyone.postsandcomments.weatherinfo.model.WeatherDataResponse;
 import com.loyaltyone.postsandcomments.weatherinfo.service.WeatherInfoService;
 
@@ -47,7 +47,11 @@ public class PostService {
 	}
 
 	public Response addPost(PostRequest postRequest) {
-		Post post = postDao.savePost(postRequest);
+		Post post = new Post();
+		post.setCity(postRequest.getCity());
+		post.setPostText(postRequest.getPost());
+		post.setUserName(postRequest.getUserName());
+		post = postDao.savePost(post);
 		PostResponse postResponse = new PostResponse();
 		postResponse.setCity(post.getCity());
 		postResponse.setCreatedDate(post.getCreatedDate());

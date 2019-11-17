@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.loyaltyone.postsandcomments.model.PagingRequest;
-import com.loyaltyone.postsandcomments.model.PagingResponse;
 import com.loyaltyone.postsandcomments.model.PostRequest;
 import com.loyaltyone.postsandcomments.model.Response;
+import com.loyaltyone.postsandcomments.model.pagination.PagingRequest;
+import com.loyaltyone.postsandcomments.model.pagination.PagingResponse;
 import com.loyaltyone.postsandcomments.service.PostService;
 
 /**

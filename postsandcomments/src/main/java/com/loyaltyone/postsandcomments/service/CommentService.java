@@ -31,7 +31,10 @@ public class CommentService {
 	}
 
 	public Response addComment(CommentRequest commentRequest) {
-		Comment comment = commentDao.saveComment(commentRequest);
+		Comment comment = new Comment();
+		comment.setComment(commentRequest.getComment());
+		comment.setPostId(commentRequest.getPostId());
+		comment = commentDao.saveComment(comment);
 		CommentResponse commentResponse = new CommentResponse();
 		commentResponse.setComment(comment.getComment());
 		commentResponse.setCreatedDate(comment.getCreatedDate());
