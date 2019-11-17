@@ -85,4 +85,10 @@ public class Column {
 	public void setSearchable(boolean searchable) {
 		this.searchable = searchable;
 	}
+
+	@Override
+	public String toString() {
+		return "Column [data=" + data + ", name=" + name + ", searchable=" + searchable + ", orderable=" + orderable
+				+ ", search=" + search + "]";
+	}
 }

@@ -11,10 +11,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
@@ -45,6 +47,31 @@ public class PostsandcommentsApplication {
 	}
 
 	/**
+	 * Configure validator factory beans to use custome message source
+	 * 
+	 * @return {@link LocalValidatorFactoryBean}
+	 */
+	@Bean
+	public LocalValidatorFactoryBean getValidator() {
+		LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
+		bean.setValidationMessageSource(messageSource());
+		return bean;
+	}
+
+	/**
+	 * Configure message source
+	 *
+	 * @return {@link ResourceBundleMessageSource}
+	 */
+	@Bean
+	public ResourceBundleMessageSource messageSource() {
+		ResourceBundleMessageSource source = new ResourceBundleMessageSource();
+		source.setBasenames("messages");
+		source.setUseCodeAsDefaultMessage(true);
+		return source;
+	}
+
+	/**
 	 * @return RestTemplate
 	 */
 	@Bean
@@ -54,7 +81,7 @@ public class PostsandcommentsApplication {
 
 	/**
 	 * Returns a synchronized version of PassiveExpiringMap
-	 * 
+	 *
 	 * @return PassiveExpiringMap
 	 */
 	@Bean

@@ -6,15 +6,16 @@ package com.loyaltyone.postsandcomments.model;
 import java.math.BigInteger;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author muffa
  *
  */
 public class CommentRequest {
-	@NotEmpty
+	@NotEmpty(message = "{comment.empty}")
 	private String comment;
-	@NotEmpty
+	@NotNull(message = "{comment.postid}")
 	private BigInteger postId;
 
 	/**
@@ -43,5 +44,10 @@ public class CommentRequest {
 	 */
 	public void setPostId(BigInteger postId) {
 		this.postId = postId;
+	}
+
+	@Override
+	public String toString() {
+		return "CommentRequest [comment=" + comment + ", postId=" + postId + "]";
 	}
 }

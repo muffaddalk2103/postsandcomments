@@ -3,10 +3,10 @@
  */
 package com.loyaltyone.postsandcomments.weatherinfo.service;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ import com.loyaltyone.postsandcomments.weatherinfo.model.WeatherDataResponse;
  */
 @Service
 public class WeatherInfoService {
-
+	private Logger logger = LoggerFactory.getLogger(WeatherInfoService.class);
 	private Map<String, WeatherDataResponse> weatherMap;
 
 	private RestTemplate restTemplate;
@@ -44,15 +44,15 @@ public class WeatherInfoService {
 		this.restTemplate = restTemplate;
 	}
 
-	public Map<String, WeatherDataResponse> getWeatherData(Set<String> cityNames) {
-		Map<String, WeatherDataResponse> weatherDataMap = new HashMap<String, WeatherDataResponse>();
-		for (String cityName : cityNames) {
-			weatherDataMap.put(cityName, getWeatherDataByCity(cityName));
-		}
-		return weatherDataMap;
-	}
-
+	/**
+	 * Calls the weather API to get the data and adds it to the weatherMap
+	 *
+	 * @param cityName city whose weather data is requested
+	 */
 	private void getWeatherData(String cityName) {
+		if (logger.isInfoEnabled()) {
+			logger.info("inside getWeatherData " + cityName);
+		}
 		try {
 			UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(weatherAPIEndpoint)
 					.queryParam("q", cityName + ",CA").queryParam("APPID", apiKey).build();// defaulting country to
@@ -61,16 +61,30 @@ public class WeatherInfoService {
 					WeatherDataResponse.class);
 			weatherMap.putIfAbsent(cityName, weatherDataResponse);
 		} catch (Exception ex) {
-			weatherMap.putIfAbsent(cityName, null);
-			ex.printStackTrace();
+			logger.error(ex.getMessage(), ex);
+			if (logger.isDebugEnabled()) {
+				logger.info("getWeatherData failed for " + cityName);
+			}
+			weatherMap.putIfAbsent(cityName, null); // makes sure that weather data isn't requested again and again for
+			// an unsupported or non-existent city for atleast 10 mins.
 		}
 	}
 
+	/**
+	 * Returns weather data for the requested city. Synchronizes the request on city
+	 * name to make sure API calls for same city are not sent to Weather API
+	 *
+	 * @param cityName city whose weather data is required
+	 * @return {@link WeatherDataResponse} for the request city
+	 */
 	public WeatherDataResponse getWeatherDataByCity(String cityName) {
+		if (logger.isInfoEnabled()) {
+			logger.info("inside getWeatherDataByCity " + cityName);
+		}
 		cityName = cityName.toLowerCase();
 		if (!weatherMap.containsKey(cityName)) {
 			synchronized (cityName.intern()) {// synchronized to make sure only one thread is fetching weather data for
-												// one
+				// one
 				// city
 				if (!weatherMap.containsKey(cityName)) {
 					getWeatherData(cityName);

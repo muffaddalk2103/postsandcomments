@@ -6,16 +6,24 @@ package com.loyaltyone.postsandcomments.model.pagination;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
+
 /**
  * @author muffa
  *
  */
 public class PagingRequest {
-
-	private int draw;
+	@NotNull
+	@Digits(integer = Integer.MAX_VALUE, fraction = 0)
+	private Integer draw;
 	private List<Column> columns;
-	private int start;
-	private int length;
+	@NotNull
+	@Digits(integer = Integer.MAX_VALUE, fraction = 0)
+	private Integer start;
+	@NotNull
+	@Digits(integer = Integer.MAX_VALUE, fraction = 0)
+	private Integer length;
 	private List<Order> order;
 	private Map<String, String> search;
 
@@ -29,14 +37,14 @@ public class PagingRequest {
 	/**
 	 * @return the draw
 	 */
-	public int getDraw() {
+	public Integer getDraw() {
 		return draw;
 	}
 
 	/**
 	 * @return the length
 	 */
-	public int getLength() {
+	public Integer getLength() {
 		return length;
 	}
 
@@ -57,7 +65,7 @@ public class PagingRequest {
 	/**
 	 * @return the start
 	 */
-	public int getStart() {
+	public Integer getStart() {
 		return start;
 	}
 
@@ -71,14 +79,14 @@ public class PagingRequest {
 	/**
 	 * @param draw the draw to set
 	 */
-	public void setDraw(int draw) {
+	public void setDraw(Integer draw) {
 		this.draw = draw;
 	}
 
 	/**
 	 * @param length the length to set
 	 */
-	public void setLength(int length) {
+	public void setLength(Integer length) {
 		this.length = length;
 	}
 
@@ -99,7 +107,13 @@ public class PagingRequest {
 	/**
 	 * @param start the start to set
 	 */
-	public void setStart(int start) {
+	public void setStart(Integer start) {
 		this.start = start;
+	}
+
+	@Override
+	public String toString() {
+		return "PagingRequest [draw=" + draw + ", columns=" + columns + ", start=" + start + ", length=" + length
+				+ ", order=" + order + ", search=" + search + "]";
 	}
 }

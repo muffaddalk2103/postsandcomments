@@ -10,11 +10,11 @@ import javax.validation.constraints.NotEmpty;
  *
  */
 public class PostRequest {
-	@NotEmpty
+	@NotEmpty(message = "{username.empty}")
 	private String userName;
-	@NotEmpty
+	@NotEmpty(message = "{city.empty}")
 	private String city;
-	@NotEmpty
+	@NotEmpty(message = "{post.empty}")
 	private String post;
 
 	/**
@@ -57,5 +57,10 @@ public class PostRequest {
 	 */
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+
+	@Override
+	public String toString() {
+		return "PostRequest [userName=" + userName + ", city=" + city + ", post=" + post + "]";
 	}
 }

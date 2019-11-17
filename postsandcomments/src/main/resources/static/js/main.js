@@ -33,9 +33,22 @@ $(document).ready(function() {
 				userPostsTable.ajax.reload(null,false);
 				allPostsDataTable.ajax.reload(null,false);
 				$("#formpost")[0].reset();
+				$.toast({
+					heading: 'Success',
+					text: 'Post Saved.',
+					showHideTransition: 'slide',
+					position: 'top-right',
+					icon: 'success'
+				});
 			},
 			error: function(xhr, resp, text) {
-				console.log(xhr, resp, text);
+				$.toast({
+					heading: 'Error',
+					text: 'Unable to save post, please try again after some time.',
+					showHideTransition: 'slide',
+					position: 'top-right',
+					icon: 'error'
+				});
 			}
 		})
 	});
@@ -59,9 +72,22 @@ $(document).ready(function() {
 				// tab of the developer tools
 				console.log(result);
 				allPostsDataTable.ajax.reload(null,false);
+				$.toast({
+					heading: 'Success',
+					text: 'Comment Saved.',
+					showHideTransition: 'slide',
+					position: 'top-right',
+					icon: 'success'
+				});
 			},
 			error: function(xhr, resp, text) {
-				console.log(xhr, resp, text);
+				$.toast({
+					heading: 'Error',
+					text: 'Unable to save post, please try again after some time.',
+					showHideTransition: 'slide',
+					position: 'top-right',
+					icon: 'error'
+				});
 			}
 		})
 	});
@@ -137,7 +163,7 @@ $(document).ready(function() {
 							commentBody+='<li class="cmmnt"><div class="cmmnt-content"><p>'+data.comments[i].comment+'</p></div></li>';
 						}
 					}
-					postBody+=commentBody + '</ul></li></ul><form action="comment" class="reply"><input type="text" id="addcomment" name="comment" placeholder="Add comment.."> <input type="hidden" id="postId" name="postId" value="'+data.postId+'"> <input type="submit" value="Reply" class="reply"></form>';
+					postBody+=commentBody + '</ul></li></ul><form action="comment" class="reply"><input type="text" id="addcomment" name="comment" placeholder="Add comment.." required="required"> <input type="hidden" id="postId" name="postId" value="'+data.postId+'"> <input type="submit" value="Reply" class="reply"></form>';
 					return postBody;
 				}
 			}

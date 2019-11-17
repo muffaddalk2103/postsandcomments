@@ -11,6 +11,8 @@
 	href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"
 	type="text/css">
 <link href='../css/styles.css' rel='stylesheet' type='text/css'>
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.css">
 </head>
 <body>
 	<div class="container">
@@ -24,11 +26,12 @@
 						<form id="formpost" action="/post">
 
 							<label for="username">User Name</label> <input type="text"
-								id="username" name="userName" placeholder="User name"> <label
-								for="city">City</label> <input type="text" id="city" name="city"
-								placeholder="City"><label for="postText">Post</label>
+								id="username" name="userName" placeholder="User name"
+								required="required"> <label for="city">City</label> <input
+								type="text" id="city" name="city" placeholder="City"
+								required="required"><label for="postText">Post</label>
 							<textarea id="postText" name="post" placeholder="Submit a post.."
-								style="height: 100px"></textarea>
+								style="height: 100px" required="required"></textarea>
 							<input type="submit" value="Done">
 
 						</form>
@@ -59,9 +62,11 @@
 			</div>
 		</div>
 	</div>
-	<script type="text/javascript" src="../js/jquery-dateformat.min.js"></script>
 	<script type="text/javascript" src="../js/jquery-3.4.1.min.js"></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/jquery-toast-plugin/1.3.2/jquery.toast.min.js"></script>
 	<script type="text/javascript"
-		src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script><script src="../js/main.js"></script>
+		src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+	<script src="../js/main.js"></script>
 </body>
 </html>

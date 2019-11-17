@@ -129,3 +129,8 @@ p {
 .reply {
 	
 }
+
+table.dataTable tbody td {
+	word-break: break-word;
+	vertical-align: top;
+}

@@ -5,11 +5,15 @@ package com.loyaltyone.postsandcomments.service;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
+import javax.transaction.Transactional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -33,11 +37,13 @@ import com.loyaltyone.postsandcomments.weatherinfo.service.WeatherInfoService;
  */
 @Service
 public class PostService {
+	private Logger logger = LoggerFactory.getLogger(PostService.class);
 	private PostDao postDao;
 	private WeatherInfoService weatherInfoService;
 
 	/**
 	 * @param postDao
+	 * @param weatherInfoService
 	 */
 	@Autowired
 	public PostService(PostDao postDao, WeatherInfoService weatherInfoService) {
@@ -46,50 +52,77 @@ public class PostService {
 		this.weatherInfoService = weatherInfoService;
 	}
 
+	/**
+	 * Saves post to database
+	 *
+	 * @param postRequest post to be stored in database
+	 * @return {@link Response}
+	 */
+	@Transactional
 	public Response addPost(PostRequest postRequest) {
-		Post post = new Post();
-		post.setCity(postRequest.getCity());
-		post.setPostText(postRequest.getPost());
-		post.setUserName(postRequest.getUserName());
-		post = postDao.savePost(post);
-		PostResponse postResponse = new PostResponse();
-		postResponse.setCity(post.getCity());
-		postResponse.setCreatedDate(post.getCreatedDate());
-		postResponse.setPost(post.getPostText());
-		postResponse.setPostId(post.getPostId());
-		postResponse.setUserName(post.getUserName());
+		logger.info("inside addPost");
+		if (logger.isDebugEnabled()) {
+			logger.debug("post request " + postRequest);
+		}
 		Response response = new Response();
-		response.setData(postResponse);
-		response.setSuccess(true);
+		try {
+			Post post = new Post();
+			post.setCity(postRequest.getCity());
+			post.setPostText(postRequest.getPost());
+			post.setUserName(postRequest.getUserName());
+			post = postDao.savePost(post);
+			PostResponse postResponse = new PostResponse();
+			postResponse.setCity(post.getCity());
+			postResponse.setCreatedDate(post.getCreatedDate());
+			postResponse.setPost(post.getPostText());
+			postResponse.setPostId(post.getPostId());
+			postResponse.setUserName(post.getUserName());
+			response.setData(postResponse);
+			response.setSuccess(true);
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			response.setMessages(Arrays.asList("Unable to save post, please try after sometime."));
+			response.setSuccess(false);
+		}
 		return response;
 	}
 
+	/**
+	 * Returns posts in paginated fashion
+	 *
+	 * @param pagingRequest page request received from the caller
+	 * @return {@link PagingResponse}
+	 */
 	public PagingResponse getAllPosts(PagingRequest pagingRequest) {
-		Page<PostCommentView> allPosts = postDao.getAllPosts(pagingRequest.getStart() / pagingRequest.getLength(),
-				pagingRequest.getLength());
-		return getPagingResponse(pagingRequest, allPosts);
+		logger.info("inside getAllPosts");
+		if (logger.isDebugEnabled()) {
+			logger.debug("paging request " + pagingRequest);
+		}
+		try {
+			Page<PostCommentView> allPosts = postDao.getAllPosts(pagingRequest.getStart() / pagingRequest.getLength(),
+					pagingRequest.getLength());
+			PagingResponse pagingResponse = new PagingResponse();
+			pagingResponse.setDraw(pagingRequest.getDraw());
+			long recordCount = postDao.getPostCount();
+			pagingResponse.setRecordsFiltered(recordCount);
+			pagingResponse.setRecordsTotal(recordCount);
+			pagingResponse.setData(getPostResponses(allPosts));
+			return pagingResponse;
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			PagingResponse pagingResponse = new PagingResponse();
+			pagingResponse.setError("Unable to retrieve posts");
+			return pagingResponse;
+		}
 	}
 
-	private PagingResponse getPagingResponse(PagingRequest pagingRequest, Page<Post> page,
-			Function<Page<Post>, Object> function) {
-		PagingResponse pagingResponse = new PagingResponse();
-		pagingResponse.setDraw(pagingRequest.getDraw());
-		pagingResponse.setRecordsFiltered(page.getTotalElements());
-		pagingResponse.setRecordsTotal(page.getTotalElements());
-		pagingResponse.setData(function.apply(page));
-		return pagingResponse;
-	}
-
-	private PagingResponse getPagingResponse(PagingRequest pagingRequest, Page<PostCommentView> page) {
-		PagingResponse pagingResponse = new PagingResponse();
-		pagingResponse.setDraw(pagingRequest.getDraw());
-		long recordCount = postDao.getPostCount();
-		pagingResponse.setRecordsFiltered(recordCount);
-		pagingResponse.setRecordsTotal(recordCount);
-		pagingResponse.setData(getPostResponses(page));
-		return pagingResponse;
-	}
-
+	/**
+	 * Converts database entities to json model at the same time gathers weatehr
+	 * data
+	 *
+	 * @param page data to be converted
+	 * @return returns a list of {@link Map} as required by the UI
+	 */
 	private List<Map<String, PostResponse>> getPostResponses(Page<PostCommentView> page) {
 		Map<String, List<PostResponse>> responseByCity = new HashMap<String, List<PostResponse>>();
 		Map<BigInteger, PostResponse> responseById = new HashMap<BigInteger, PostResponse>();
@@ -151,6 +184,12 @@ public class PostService {
 		return postResponses;
 	}
 
+	/**
+	 * Converts database entities to json model
+	 *
+	 * @param page data to be converted
+	 * @return returns a list of {@link PostResponse} as required by the UI
+	 */
 	private List<PostResponse> getPostResponsesWithoutWeatherData(Page<Post> page) {
 		List<PostResponse> postResponses = new ArrayList<PostResponse>();
 		for (Post post : page) {
@@ -165,9 +204,32 @@ public class PostService {
 		return postResponses;
 	}
 
+	/**
+	 * Returns posts filtered by user name
+	 *
+	 * @param userName      user whose posts are to be returned
+	 * @param pagingRequest page request received from the caller
+	 * @return {@link PagingResponse}
+	 */
 	public PagingResponse getPostsByUserName(String userName, PagingRequest pagingRequest) {
-		Page<Post> allPosts = postDao.getPostsByUserName(userName, pagingRequest.getStart() / pagingRequest.getLength(),
-				pagingRequest.getLength());
-		return getPagingResponse(pagingRequest, allPosts, this::getPostResponsesWithoutWeatherData);
+		logger.info("inside getPostsByUserName");
+		if (logger.isDebugEnabled()) {
+			logger.debug("paging request " + pagingRequest + " user name " + userName);
+		}
+		try {
+			Page<Post> allPosts = postDao.getPostsByUserName(userName,
+					pagingRequest.getStart() / pagingRequest.getLength(), pagingRequest.getLength());
+			PagingResponse pagingResponse = new PagingResponse();
+			pagingResponse.setDraw(pagingRequest.getDraw());
+			pagingResponse.setRecordsFiltered(allPosts.getTotalElements());
+			pagingResponse.setRecordsTotal(allPosts.getTotalElements());
+			pagingResponse.setData(getPostResponsesWithoutWeatherData(allPosts));
+			return pagingResponse;
+		} catch (Exception ex) {
+			logger.error(ex.getMessage(), ex);
+			PagingResponse pagingResponse = new PagingResponse();
+			pagingResponse.setError("Unable to retrieve posts");
+			return pagingResponse;
+		}
 	}
 }

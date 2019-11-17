@@ -38,4 +38,9 @@ public class Order {
 	public void setDir(String dir) {
 		this.dir = dir;
 	}
+
+	@Override
+	public String toString() {
+		return "Order [column=" + column + ", dir=" + dir + "]";
+	}
 }
