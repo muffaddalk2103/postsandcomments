@@ -85,7 +85,9 @@ public class WeatherInfoService {
 			// synchronized to make sure only one thread is fetching weather data for one
 			// city
 			synchronized (cityName.intern()) {
-				getWeatherData(cityName);
+				if (!weatherMap.containsKey(cityName)) {
+					getWeatherData(cityName);
+				}
 			}
 		}
 		return weatherMap.get(cityName);
