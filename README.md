@@ -17,4 +17,5 @@ To run the application, please perform following steps.
 3. Change the database properties (server, username, password) in application.properties. Property file can be found in src/main/resources
 4. change server.port property, if required in application.properties.
 5. Run the application using command "mvn spring-boot:run"
+6. Access application by connectiong to address https://localhost:[server.port] via browser
 
