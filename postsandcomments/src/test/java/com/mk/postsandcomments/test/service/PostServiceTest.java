@@ -22,9 +22,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
 import com.mk.postsandcomments.dao.PostDao;
+import com.mk.postsandcomments.dao.entity.Comment;
 import com.mk.postsandcomments.dao.entity.Post;
-import com.mk.postsandcomments.dao.entity.PostCommentPK;
-import com.mk.postsandcomments.dao.entity.PostCommentView;
 import com.mk.postsandcomments.model.PostRequest;
 import com.mk.postsandcomments.model.PostResponse;
 import com.mk.postsandcomments.model.Response;
@@ -106,40 +105,34 @@ public class PostServiceTest {
 		pagingRequest.setDraw(1);
 		pagingRequest.setLength(10);
 		pagingRequest.setStart(0);
-		PostCommentPK postCommentPK = new PostCommentPK();
-		postCommentPK.setCommentId(BigInteger.ONE);
-		postCommentPK.setPostId(BigInteger.ONE);
-		PostCommentView post = new PostCommentView();
+		Post post = new Post();
 		post.setCity("city");
 		post.setCreatedDate(LocalDateTime.now());
 		post.setPostText("post");
 		post.setUserName("username");
-		post.setId(postCommentPK);
-		PostCommentView post1 = new PostCommentView();
-		postCommentPK = new PostCommentPK();
-		postCommentPK.setCommentId(BigInteger.ONE);
-		postCommentPK.setPostId(BigInteger.valueOf(2));
+		post.setPostId(BigInteger.ONE);
+		Post post1 = new Post();
+		post1.setPostId(BigInteger.valueOf(2));
 		post1.setCity("city1");
 		post1.setCreatedDate(LocalDateTime.now());
 		post1.setPostText("post");
 		post1.setUserName("username");
-		post1.setComment("comment1");
-		post1.setCommentCreatedDate(post1.getCreatedDate());
-		post1.setId(postCommentPK);
-		PostCommentView post2 = new PostCommentView();
-		postCommentPK = new PostCommentPK();
-		postCommentPK.setCommentId(BigInteger.valueOf(2));
-		postCommentPK.setPostId(BigInteger.valueOf(2));
-		post2.setCity("city1");
-		post2.setCreatedDate(LocalDateTime.now());
-		post2.setPostText("post");
-		post2.setUserName("username");
-		post2.setComment("comment2");
-		post2.setCommentCreatedDate(post2.getCreatedDate());
-		post2.setId(postCommentPK);
-		Page<PostCommentView> page = new PageImpl<PostCommentView>(Arrays.asList(post, post1, post2));
+		List<Comment> comments = new ArrayList<Comment>();
+		post1.setComments(comments);
+		Comment comment1 = new Comment();
+		comment1.setComment("comment1");
+		comment1.setCreatedDate(LocalDateTime.now());
+		comment1.setCommentId(BigInteger.ONE);
+		comment1.setPostId(post1.getPostId());
+		Comment comment2 = new Comment();
+		comment2.setCommentId(BigInteger.valueOf(2));
+		comment2.setComment("comment2");
+		comment2.setCreatedDate(LocalDateTime.now());
+		comment2.setPostId(post1.getPostId());
+		comments.add(comment1);
+		comments.add(comment2);
+		Page<Post> page = new PageImpl<Post>(Arrays.asList(post, post1));
 		Mockito.when(postDao.getAllPosts(Mockito.anyInt(), Mockito.anyInt())).thenReturn(page);
-		Mockito.when(postDao.getPostCount()).thenReturn(2L);
 		WeatherDataResponse weatherDataResponse = new WeatherDataResponse();
 		weatherDataResponse.setCity("city");
 		weatherDataResponse.setLocationData(new LocationData());
@@ -167,7 +160,7 @@ public class PostServiceTest {
 		Assertions.assertTrue(response.getRecordsFiltered() == 2);
 		Assertions.assertTrue(response.getRecordsTotal() == 2);
 		Assertions.assertEquals(postResponses.get(0).get("post").getUserName(), post.getUserName());
-		Assertions.assertEquals(postResponses.get(0).get("post").getPostId(), post.getId().getPostId());
+		Assertions.assertEquals(postResponses.get(0).get("post").getPostId(), post.getPostId());
 		Assertions.assertEquals(postResponses.get(0).get("post").getCreatedDate(), post.getCreatedDate());
 		Assertions.assertEquals(postResponses.get(0).get("post").getWeatherData().getLatitude(),
 				weatherDataResponse.getLocationData().getLatitude());
@@ -177,11 +170,13 @@ public class PostServiceTest {
 		Assertions.assertEquals(postResponses.get(1).get("post").getWeatherData().getTemperature(), -253);
 		Assertions.assertNull(postResponses.get(0).get("post").getComments());
 		Assertions.assertEquals(postResponses.get(1).get("post").getUserName(), post1.getUserName());
-		Assertions.assertEquals(postResponses.get(1).get("post").getPostId(), post1.getId().getPostId());
+		Assertions.assertEquals(postResponses.get(1).get("post").getPostId(), post1.getPostId());
 		Assertions.assertEquals(postResponses.get(1).get("post").getCreatedDate(), post1.getCreatedDate());
 		Assertions.assertNotNull(postResponses.get(1).get("post").getComments());
-		Assertions.assertEquals(postResponses.get(1).get("post").getComments().get(0).getComment(), post1.getComment());
-		Assertions.assertEquals(postResponses.get(1).get("post").getComments().get(1).getComment(), post2.getComment());
+		Assertions.assertEquals(postResponses.get(1).get("post").getComments().get(0).getComment(),
+				post1.getComments().get(0).getComment());
+		Assertions.assertEquals(postResponses.get(1).get("post").getComments().get(1).getComment(),
+				post1.getComments().get(1).getComment());
 	}
 
 	@Test
@@ -190,9 +185,8 @@ public class PostServiceTest {
 		pagingRequest.setDraw(1);
 		pagingRequest.setLength(10);
 		pagingRequest.setStart(0);
-		Page<PostCommentView> page = new PageImpl<PostCommentView>(new ArrayList<>());
+		Page<Post> page = new PageImpl<Post>(new ArrayList<>());
 		Mockito.when(postDao.getAllPosts(Mockito.anyInt(), Mockito.anyInt())).thenReturn(page);
-		Mockito.when(postDao.getPostCount()).thenReturn(0L);
 		WeatherDataResponse weatherDataResponse = new WeatherDataResponse();
 		weatherDataResponse.setCity("city");
 		weatherDataResponse.setLocationData(new LocationData());
@@ -222,45 +216,39 @@ public class PostServiceTest {
 	}
 
 	@Test
-	public void testGetAllPostsWhenWeatherDataisNull() {
+	public void testGetAllPostsWhenWeatherDataIsNull() {
 		PagingRequest pagingRequest = new PagingRequest();
 		pagingRequest.setDraw(1);
 		pagingRequest.setLength(10);
 		pagingRequest.setStart(0);
-		PostCommentPK postCommentPK = new PostCommentPK();
-		postCommentPK.setCommentId(BigInteger.ONE);
-		postCommentPK.setPostId(BigInteger.ONE);
-		PostCommentView post = new PostCommentView();
+		Post post = new Post();
 		post.setCity("city");
 		post.setCreatedDate(LocalDateTime.now());
 		post.setPostText("post");
 		post.setUserName("username");
-		post.setId(postCommentPK);
-		PostCommentView post1 = new PostCommentView();
-		postCommentPK = new PostCommentPK();
-		postCommentPK.setCommentId(BigInteger.ONE);
-		postCommentPK.setPostId(BigInteger.valueOf(2));
-		post1.setCity("city");
+		post.setPostId(BigInteger.ONE);
+		Post post1 = new Post();
+		post1.setPostId(BigInteger.valueOf(2));
+		post1.setCity("city1");
 		post1.setCreatedDate(LocalDateTime.now());
 		post1.setPostText("post");
 		post1.setUserName("username");
-		post1.setComment("comment1");
-		post1.setCommentCreatedDate(post1.getCreatedDate());
-		post1.setId(postCommentPK);
-		PostCommentView post2 = new PostCommentView();
-		postCommentPK = new PostCommentPK();
-		postCommentPK.setCommentId(BigInteger.valueOf(2));
-		postCommentPK.setPostId(BigInteger.valueOf(2));
-		post2.setCity("city");
-		post2.setCreatedDate(LocalDateTime.now());
-		post2.setPostText("post");
-		post2.setUserName("username");
-		post2.setComment("comment2");
-		post2.setCommentCreatedDate(post2.getCreatedDate());
-		post2.setId(postCommentPK);
-		Page<PostCommentView> page = new PageImpl<PostCommentView>(Arrays.asList(post, post1, post2));
+		List<Comment> comments = new ArrayList<Comment>();
+		post1.setComments(comments);
+		Comment comment1 = new Comment();
+		comment1.setComment("comment1");
+		comment1.setCreatedDate(LocalDateTime.now());
+		comment1.setCommentId(BigInteger.ONE);
+		comment1.setPostId(post1.getPostId());
+		Comment comment2 = new Comment();
+		comment2.setCommentId(BigInteger.valueOf(2));
+		comment2.setComment("comment2");
+		comment2.setCreatedDate(LocalDateTime.now());
+		comment2.setPostId(post1.getPostId());
+		comments.add(comment1);
+		comments.add(comment2);
+		Page<Post> page = new PageImpl<Post>(Arrays.asList(post, post1));
 		Mockito.when(postDao.getAllPosts(Mockito.anyInt(), Mockito.anyInt())).thenReturn(page);
-		Mockito.when(postDao.getPostCount()).thenReturn(2L);
 		Mockito.when(weatherInfoService.getWeatherDataByCity(Mockito.anyString())).thenReturn(null);
 		PagingResponse response = postService.getAllPosts(pagingRequest);
 		Assertions.assertTrue(response.getData() instanceof List);
@@ -270,18 +258,20 @@ public class PostServiceTest {
 		Assertions.assertTrue(response.getRecordsFiltered() == 2);
 		Assertions.assertTrue(response.getRecordsTotal() == 2);
 		Assertions.assertEquals(postResponses.get(0).get("post").getUserName(), post.getUserName());
-		Assertions.assertEquals(postResponses.get(0).get("post").getPostId(), post.getId().getPostId());
+		Assertions.assertEquals(postResponses.get(0).get("post").getPostId(), post.getPostId());
 		Assertions.assertEquals(postResponses.get(0).get("post").getCreatedDate(), post.getCreatedDate());
 		Assertions.assertEquals(postResponses.get(0).get("post").getWeatherData().getLatitude(), 0);
 		Assertions.assertEquals(postResponses.get(0).get("post").getWeatherData().getLongitude(), 0);
 		Assertions.assertEquals(postResponses.get(0).get("post").getWeatherData().getTemperature(), 0);
 		Assertions.assertNull(postResponses.get(0).get("post").getComments());
 		Assertions.assertEquals(postResponses.get(1).get("post").getUserName(), post1.getUserName());
-		Assertions.assertEquals(postResponses.get(1).get("post").getPostId(), post1.getId().getPostId());
+		Assertions.assertEquals(postResponses.get(1).get("post").getPostId(), post1.getPostId());
 		Assertions.assertEquals(postResponses.get(1).get("post").getCreatedDate(), post1.getCreatedDate());
 		Assertions.assertNotNull(postResponses.get(1).get("post").getComments());
-		Assertions.assertEquals(postResponses.get(1).get("post").getComments().get(0).getComment(), post1.getComment());
-		Assertions.assertEquals(postResponses.get(1).get("post").getComments().get(1).getComment(), post2.getComment());
+		Assertions.assertEquals(postResponses.get(1).get("post").getComments().get(0).getComment(),
+				post1.getComments().get(0).getComment());
+		Assertions.assertEquals(postResponses.get(1).get("post").getComments().get(1).getComment(),
+				post1.getComments().get(1).getComment());
 	}
 
 	@Test

@@ -3,7 +3,6 @@
  */
 package com.mk.postsandcomments.service;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,8 +18,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import com.mk.postsandcomments.dao.PostDao;
+import com.mk.postsandcomments.dao.entity.Comment;
 import com.mk.postsandcomments.dao.entity.Post;
-import com.mk.postsandcomments.dao.entity.PostCommentView;
 import com.mk.postsandcomments.model.CommentResponse;
 import com.mk.postsandcomments.model.PostRequest;
 import com.mk.postsandcomments.model.PostResponse;
@@ -88,20 +87,20 @@ public class PostService {
 	 * @param pagingRequest page request received from the caller
 	 * @return {@link PagingResponse}
 	 */
+	@Transactional
 	public PagingResponse getAllPosts(PagingRequest pagingRequest) {
 		logger.info("inside getAllPosts");
 		if (logger.isDebugEnabled()) {
 			logger.debug("paging request " + pagingRequest);
 		}
 		try {
-			Page<PostCommentView> allPosts = postDao.getAllPosts(pagingRequest.getStart() / pagingRequest.getLength(),
+			Page<Post> allPost = postDao.getAllPosts(pagingRequest.getStart() / pagingRequest.getLength(),
 					pagingRequest.getLength());
 			PagingResponse pagingResponse = new PagingResponse();
 			pagingResponse.setDraw(pagingRequest.getDraw());
-			long recordCount = postDao.getPostCount();
-			pagingResponse.setRecordsFiltered(recordCount);
-			pagingResponse.setRecordsTotal(recordCount);
-			pagingResponse.setData(getPostResponses(allPosts));
+			pagingResponse.setRecordsTotal(allPost.getTotalElements());
+			pagingResponse.setData(getPostResponses(allPost));
+			pagingResponse.setRecordsFiltered(allPost.getTotalElements());
 			return pagingResponse;
 		} catch (Exception ex) {
 			logger.error(ex.getMessage(), ex);
@@ -118,48 +117,37 @@ public class PostService {
 	 * @param page data to be converted
 	 * @return returns a list of {@link Map} as required by the UI
 	 */
-	private List<Map<String, PostResponse>> getPostResponses(Page<PostCommentView> page) {
+	private List<Map<String, PostResponse>> getPostResponses(Page<Post> page) {
 		Map<String, List<PostResponse>> responseByCity = new HashMap<String, List<PostResponse>>();
-		Map<BigInteger, PostResponse> responseById = new HashMap<BigInteger, PostResponse>();
 		List<Map<String, PostResponse>> postResponses = new ArrayList<Map<String, PostResponse>>();
-		for (PostCommentView post : page) {
+		for (Post post : page) {
 			String cityName = post.getCity().toLowerCase();
-			PostResponse postResponse = null;
-			if (responseById.containsKey(post.getId().getPostId())) {
-				postResponse = responseById.get(post.getId().getPostId());
+			PostResponse postResponse = new PostResponse();
+			postResponse.setCity(post.getCity());
+			postResponse.setCreatedDate(post.getCreatedDate());
+			postResponse.setPost(post.getPostText());
+			postResponse.setPostId(post.getPostId());
+			postResponse.setUserName(post.getUserName());
+			Map<String, PostResponse> map = new HashMap<String, PostResponse>();
+			map.put("post", postResponse);
+			postResponses.add(map);
+			if (!responseByCity.containsKey(cityName)) {
+				List<PostResponse> list = new ArrayList<PostResponse>();
+				responseByCity.put(cityName, list);
+				list.add(postResponse);
 			} else {
-				postResponse = new PostResponse();
-				responseById.put(post.getId().getPostId(), postResponse);
-				postResponse.setCity(post.getCity());
-				postResponse.setCreatedDate(post.getCreatedDate());
-				postResponse.setPost(post.getPostText());
-				postResponse.setPostId(post.getId().getPostId());
-				postResponse.setUserName(post.getUserName());
-				Map<String, PostResponse> map = new HashMap<String, PostResponse>();
-				map.put("post", postResponse);
-				postResponses.add(map);
-				if (!responseByCity.containsKey(cityName)) {
-					List<PostResponse> list = new ArrayList<PostResponse>();
-					responseByCity.put(cityName, list);
-					list.add(postResponse);
-				} else {
-					responseByCity.get(cityName).add(postResponse);
-				}
+				responseByCity.get(cityName).add(postResponse);
 			}
-			if (post.getComment() != null) {
-				List<CommentResponse> commentResponses = null;
-				if (postResponse.getComments() == null) {
-					commentResponses = new ArrayList<CommentResponse>();
-				} else {
-					commentResponses = postResponse.getComments();
-				}
+			if (post.getComments() != null && !post.getComments().isEmpty()) {
+				List<CommentResponse> commentResponses = new ArrayList<CommentResponse>();
 				postResponse.setComments(commentResponses);
-				CommentResponse commentResponse = new CommentResponse();
-				commentResponse.setComment(post.getComment());
-				commentResponse.setCreatedDate(post.getCommentCreatedDate());
-				commentResponse.setPostId(post.getId().getPostId());
-				commentResponses.add(commentResponse);
-
+				for (Comment comment : post.getComments()) {
+					CommentResponse commentResponse = new CommentResponse();
+					commentResponse.setComment(comment.getComment());
+					commentResponse.setCreatedDate(comment.getCreatedDate());
+					commentResponse.setPostId(post.getPostId());
+					commentResponses.add(commentResponse);
+				}
 			}
 		}
 		// parallely retrive weather data
@@ -230,7 +218,7 @@ public class PostService {
 
 	/**
 	 * saves post to database
-	 * 
+	 *
 	 * @param postRequest post to be saved
 	 * @return {@link Post}
 	 */

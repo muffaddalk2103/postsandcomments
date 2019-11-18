@@ -13,8 +13,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.mk.postsandcomments.dao.entity.Post;
-import com.mk.postsandcomments.dao.entity.PostCommentView;
-import com.mk.postsandcomments.dao.repository.PostCommentViewRepository;
 import com.mk.postsandcomments.dao.repository.PostRepository;
 
 /**
@@ -25,17 +23,15 @@ import com.mk.postsandcomments.dao.repository.PostRepository;
 public class PostDao {
 	private Logger logger = LoggerFactory.getLogger(PostDao.class);
 	private PostRepository postRepository;
-	private PostCommentViewRepository postCommentViewRepository;
 
 	/**
 	 * @param postRepository
 	 * @param postCommentViewRepository
 	 */
 	@Autowired
-	public PostDao(PostRepository postRepository, PostCommentViewRepository postCommentViewRepository) {
+	public PostDao(PostRepository postRepository) {
 		super();
 		this.postRepository = postRepository;
-		this.postCommentViewRepository = postCommentViewRepository;
 	}
 
 	/**
@@ -45,21 +41,10 @@ public class PostDao {
 	 * @param pageSize size of the data to be returned
 	 * @return page
 	 */
-	public Page<PostCommentView> getAllPosts(int page, int pageSize) {
+	public Page<Post> getAllPosts(int page, int pageSize) {
 		logger.info("Inside getAllPosts");
-		Pageable sortedByCreateDateDesc = PageRequest.of(page, pageSize,
-				Sort.by("createdDate").descending().and(Sort.by("commentCreatedDate").descending()));
-		return postCommentViewRepository.findAll(sortedByCreateDateDesc);
-	}
-
-	/**
-	 * Gets total posts from database
-	 *
-	 * @return count of records
-	 */
-	public long getPostCount() {
-		logger.info("Inside getPostCount");
-		return postRepository.count();
+		Pageable sortedByCreateDateDesc = PageRequest.of(page, pageSize, Sort.by("postId").descending());
+		return postRepository.findAll(sortedByCreateDateDesc);
 	}
 
 	/**

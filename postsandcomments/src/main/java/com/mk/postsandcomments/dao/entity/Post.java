@@ -1,19 +1,25 @@
 /**
- * 
+ *
  */
 package com.mk.postsandcomments.dao.entity;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -26,7 +32,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 public class Post {
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY, generator = "post_id_seq")
+	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "post_id_seq")
 	@Column(name = "post_id")
 	private BigInteger postId;
 	@Column(name = "post_text", nullable = false)
@@ -38,64 +44,92 @@ public class Post {
 	@Column(name = "created_dt", nullable = false, updatable = false)
 	@CreatedDate
 	private LocalDateTime createdDate;
-	/**
-	 * @return the postId
-	 */
-	public BigInteger getPostId() {
-		return postId;
-	}
-	/**
-	 * @param postId the postId to set
-	 */
-	public void setPostId(BigInteger postId) {
-		this.postId = postId;
-	}
-	/**
-	 * @return the postText
-	 */
-	public String getPostText() {
-		return postText;
-	}
-	/**
-	 * @param postText the postText to set
-	 */
-	public void setPostText(String postText) {
-		this.postText = postText;
-	}
-	/**
-	 * @return the userName
-	 */
-	public String getUserName() {
-		return userName;
-	}
-	/**
-	 * @param userName the userName to set
-	 */
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+	@OneToMany(mappedBy = "postId", fetch = FetchType.LAZY)
+	@Fetch(FetchMode.SUBSELECT)
+	@OrderBy("commentId desc")
+	private List<Comment> comments;
+
 	/**
 	 * @return the city
 	 */
 	public String getCity() {
 		return city;
 	}
+
 	/**
-	 * @param city the city to set
+	 * @return the comments
 	 */
-	public void setCity(String city) {
-		this.city = city;
+	public List<Comment> getComments() {
+		return comments;
 	}
+
 	/**
 	 * @return the createdDate
 	 */
 	public LocalDateTime getCreatedDate() {
 		return createdDate;
 	}
+
+	/**
+	 * @return the postId
+	 */
+	public BigInteger getPostId() {
+		return postId;
+	}
+
+	/**
+	 * @return the postText
+	 */
+	public String getPostText() {
+		return postText;
+	}
+
+	/**
+	 * @return the userName
+	 */
+	public String getUserName() {
+		return userName;
+	}
+
+	/**
+	 * @param city the city to set
+	 */
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	/**
+	 * @param comments the comments to set
+	 */
+	public void setComments(List<Comment> comments) {
+		this.comments = comments;
+	}
+
 	/**
 	 * @param createdDate the createdDate to set
 	 */
 	public void setCreatedDate(LocalDateTime createdDate) {
 		this.createdDate = createdDate;
+	}
+
+	/**
+	 * @param postId the postId to set
+	 */
+	public void setPostId(BigInteger postId) {
+		this.postId = postId;
+	}
+
+	/**
+	 * @param postText the postText to set
+	 */
+	public void setPostText(String postText) {
+		this.postText = postText;
+	}
+
+	/**
+	 * @param userName the userName to set
+	 */
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 }
