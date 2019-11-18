@@ -107,12 +107,13 @@ $(document).ready(function() {
 			},
 			"dataType":"json",
 			"error": function(jqXHR, textStatus, errorThrown){
-				if(errorThrown == 'Forbidden'){	
-					window.location.reload(true);
-				}else if(textStatus == "error"){
-					$('#alert .alert-box').removeClass("hide");
-					$("#alert .alert-box").html('Server not reachable, please try after sometime or contact system administrator.');
-				}
+				$.toast({
+					heading: 'Error',
+					text: 'Unable to load user posts',
+					showHideTransition: 'slide',
+					position: 'top-right',
+					icon: 'error'
+				});
 			}
 		},
 		"columns": [
@@ -140,12 +141,13 @@ $(document).ready(function() {
 			},
 			"dataType":"json",
 			"error": function(jqXHR, textStatus, errorThrown){
-				if(errorThrown == 'Forbidden'){	
-					window.location.reload(true);
-				}else if(textStatus == "error"){
-					$('#alert .alert-box').removeClass("hide");
-					$("#alert .alert-box").html('Server not reachable, please try after sometime or contact system administrator.');
-				}
+				$.toast({
+					heading: 'Error',
+					text: 'Unable to load posts',
+					showHideTransition: 'slide',
+					position: 'top-right',
+					icon: 'error'
+				});
 			}
 		},
 		"columns": [
