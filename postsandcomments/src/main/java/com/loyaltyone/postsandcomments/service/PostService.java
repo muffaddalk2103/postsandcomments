@@ -58,7 +58,6 @@ public class PostService {
 	 * @param postRequest post to be stored in database
 	 * @return {@link Response}
 	 */
-	@Transactional
 	public Response addPost(PostRequest postRequest) {
 		logger.info("inside addPost");
 		if (logger.isDebugEnabled()) {
@@ -66,11 +65,7 @@ public class PostService {
 		}
 		Response response = new Response();
 		try {
-			Post post = new Post();
-			post.setCity(postRequest.getCity());
-			post.setPostText(postRequest.getPost());
-			post.setUserName(postRequest.getUserName());
-			post = postDao.savePost(post);
+			Post post = savePost(postRequest);
 			PostResponse postResponse = new PostResponse();
 			postResponse.setCity(post.getCity());
 			postResponse.setCreatedDate(post.getCreatedDate());
@@ -231,5 +226,21 @@ public class PostService {
 			pagingResponse.setError("Unable to retrieve posts");
 			return pagingResponse;
 		}
+	}
+
+	/**
+	 * saves post to database
+	 * 
+	 * @param postRequest post to be saved
+	 * @return {@link Post}
+	 */
+	@Transactional
+	private Post savePost(PostRequest postRequest) {
+		logger.info("inside savePost");
+		Post post = new Post();
+		post.setCity(postRequest.getCity());
+		post.setPostText(postRequest.getPost());
+		post.setUserName(postRequest.getUserName());
+		return postDao.savePost(post);
 	}
 }

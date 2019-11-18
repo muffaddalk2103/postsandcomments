@@ -38,11 +38,10 @@ public class CommentService {
 
 	/**
 	 * saves comment to database
-	 * 
+	 *
 	 * @param commentRequest comment to be saved
 	 * @return {@link Response}
 	 */
-	@Transactional
 	public Response addComment(CommentRequest commentRequest) {
 		logger.info("inside addComment");
 		if (logger.isDebugEnabled()) {
@@ -50,10 +49,7 @@ public class CommentService {
 		}
 		Response response = new Response();
 		try {
-			Comment comment = new Comment();
-			comment.setComment(commentRequest.getComment());
-			comment.setPostId(commentRequest.getPostId());
-			comment = commentDao.saveComment(comment);
+			Comment comment = saveComment(commentRequest);
 			CommentResponse commentResponse = new CommentResponse();
 			commentResponse.setComment(comment.getComment());
 			commentResponse.setCreatedDate(comment.getCreatedDate());
@@ -66,6 +62,21 @@ public class CommentService {
 			response.setSuccess(false);
 		}
 		return response;
+	}
+
+	/**
+	 * saves comment to database
+	 *
+	 * @param commentRequest comment to be saved
+	 * @return {@link Comment}
+	 */
+	@Transactional
+	private Comment saveComment(CommentRequest commentRequest) {
+		logger.info("inside saveComment");
+		Comment comment = new Comment();
+		comment.setComment(commentRequest.getComment());
+		comment.setPostId(commentRequest.getPostId());
+		return commentDao.saveComment(comment);
 	}
 
 }

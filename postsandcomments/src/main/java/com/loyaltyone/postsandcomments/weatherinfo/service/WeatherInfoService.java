@@ -23,14 +23,12 @@ import com.loyaltyone.postsandcomments.weatherinfo.model.WeatherDataResponse;
 @Service
 public class WeatherInfoService {
 	private Logger logger = LoggerFactory.getLogger(WeatherInfoService.class);
-	private Map<String, WeatherDataResponse> weatherMap;
-
+	private Map<String, WeatherDataResponse> weatherMap;// ideally weather data should be stored in cache like redis or
+	// hazelcast
 	private RestTemplate restTemplate;
 
-	@Value("${weather.api.endpoint}")
 	private String weatherAPIEndpoint;
 
-	@Value("${weather.api.key}")
 	private String apiKey;
 
 	/**
@@ -38,10 +36,13 @@ public class WeatherInfoService {
 	 * @param restTemplate
 	 */
 	@Autowired
-	public WeatherInfoService(Map<String, WeatherDataResponse> weatherMap, RestTemplate restTemplate) {
+	public WeatherInfoService(Map<String, WeatherDataResponse> weatherMap, RestTemplate restTemplate,
+			@Value("${weather.api.endpoint}") String weatherAPIEndpoint, @Value("${weather.api.key}") String apiKey) {
 		super();
 		this.weatherMap = weatherMap;
 		this.restTemplate = restTemplate;
+		this.weatherAPIEndpoint = weatherAPIEndpoint;
+		this.apiKey = apiKey;
 	}
 
 	/**
@@ -50,9 +51,7 @@ public class WeatherInfoService {
 	 * @param cityName city whose weather data is requested
 	 */
 	private void getWeatherData(String cityName) {
-		if (logger.isInfoEnabled()) {
-			logger.info("inside getWeatherData " + cityName);
-		}
+		logger.info("inside getWeatherData");
 		try {
 			UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(weatherAPIEndpoint)
 					.queryParam("q", cityName + ",CA").queryParam("APPID", apiKey).build();// defaulting country to
@@ -83,9 +82,9 @@ public class WeatherInfoService {
 		}
 		cityName = cityName.toLowerCase();
 		if (!weatherMap.containsKey(cityName)) {
-			synchronized (cityName.intern()) {// synchronized to make sure only one thread is fetching weather data for
-				// one
-				// city
+			// synchronized to make sure only one thread is fetching weather data for one
+			// city
+			synchronized (cityName.intern()) {
 				if (!weatherMap.containsKey(cityName)) {
 					getWeatherData(cityName);
 				}
